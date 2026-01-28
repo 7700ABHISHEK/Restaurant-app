@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
     "paths": {
       "@/*": ["./*"]
     }
