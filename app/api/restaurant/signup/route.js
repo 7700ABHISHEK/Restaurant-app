@@ -7,7 +7,7 @@ export async function POST (request){
     try {
         await connectDB();
         const payload = await request.json();
-        
+
         const hashedPassword = await bcrypt.hash(payload.password, 10);
 
         const newUser = new User({
