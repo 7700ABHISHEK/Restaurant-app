@@ -10,9 +10,15 @@ export async function POST(request){
         const email = payload.email;
         const user = await User.findOne({email})
 
+        if(!user) {
+            return NextResponse.json({result: false, error: "User not found"}, {status: 404})
+        }
+
         const password = await bcrypt.compare(payload.password, user.password);
 
-        if(!password) return;
+        if(!password) {
+            return NextResponse.json({result: false, error: "Invalid password"}, {status: 401})
+        }
 
         return NextResponse.json({result: true, Response: user})
     } catch (error) {
