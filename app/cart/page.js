@@ -8,9 +8,8 @@ import { useRouter } from 'next/navigation'
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
     const [loading, setLoading] = useState(true)
-    const router = useRouter();
 
-    console.log(cartItems)
+    const router = useRouter();
 
     useEffect(() => {
         loadCart()
@@ -46,6 +45,56 @@ const CartPage = () => {
             localStorage.removeItem('cart')
         }
     }
+
+    const orderNow = async () => {
+        try {
+            let customer_id = JSON.parse(localStorage.getItem("customer")).result._id;
+            let cart = JSON.parse(localStorage.getItem("cart"))
+            let foodItems = cart.map((item) => ({
+                foodItemId: item._id,
+                quantity: item.quantity
+            }));
+            let restaurant_id = cart[0].userId;
+
+            // Auto-assign available delivery partner
+            const assignResponse = await fetch('/api/delivery/assign');
+            const assignData = await assignResponse.json();
+            
+            if (!assignData.success) {
+                alert("No delivery partners available at the moment. Please try again later.");
+                return;
+            }
+
+            let collection = {
+                customer_id,
+                foodItems,
+                restaurant_id,
+                deliveryPartner_id: assignData.deliveryPartnerId,
+                status: 'confirm',
+                amount: total
+            }
+
+            let response = await fetch('/api/order', {
+                method: "POST",
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(collection)
+            })
+
+            response = await response.json();
+            if(response.success === true){
+                alert("Order placed successfully! A delivery partner has been assigned.");
+                localStorage.removeItem("cart");
+                localStorage.setItem("order", JSON.stringify(collection));
+                router.push('/orders')
+            }
+        } catch (error) {
+            console.error("Order placement error:", error);
+            alert("Failed to place order. Please try again.");
+        }
+    }
+
 
     const calculateSubtotal = () => {
         return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
@@ -187,10 +236,10 @@ const CartPage = () => {
                                                     {/* Price */}
                                                     <div className="text-right">
                                                         <p className="text-base sm:text-lg md:text-xl font-bold text-orange-600">
-                                                            ${(item.price * item.quantity).toFixed(2)}
+                                                            ₹{(item.price * item.quantity).toFixed(2)}
                                                         </p>
                                                         <p className="text-xs text-gray-500">
-                                                            ${item.price.toFixed(2)} each
+                                                            ₹{item.price.toFixed(2)} each
                                                         </p>
                                                     </div>
                                                 </div>
@@ -208,20 +257,20 @@ const CartPage = () => {
                                     <div className="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
                                         <div className="flex justify-between text-sm sm:text-base text-gray-600">
                                             <span>Subtotal</span>
-                                            <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                                            <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm sm:text-base text-gray-600">
                                             <span>Delivery Fee</span>
-                                            <span className="font-semibold">${deliveryFee.toFixed(2)}</span>
+                                            <span className="font-semibold">₹{deliveryFee.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm sm:text-base text-gray-600">
                                             <span>Tax (8%)</span>
-                                            <span className="font-semibold">${tax.toFixed(2)}</span>
+                                            <span className="font-semibold">₹{tax.toFixed(2)}</span>
                                         </div>
                                         <div className="border-t border-gray-200 pt-2 sm:pt-3">
                                             <div className="flex justify-between text-base sm:text-lg font-bold text-gray-800">
                                                 <span>Total</span>
-                                                <span className="text-orange-600">${total.toFixed(2)}</span>
+                                                <span className="text-orange-600">₹{total.toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -241,7 +290,7 @@ const CartPage = () => {
                                     </div>
 
                                     {/* Checkout Button */}
-                                    <button className="w-full py-2.5 sm:py-3 text-sm sm:text-base bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors mb-2 sm:mb-3">
+                                    <button className="w-full py-2.5 sm:py-3 text-sm sm:text-base bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors mb-2 sm:mb-3" onClick={()=> orderNow()}>
                                         Proceed to Checkout
                                     </button>
 

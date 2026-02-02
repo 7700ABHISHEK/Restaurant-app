@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Food Delivery Application
+
+A full-stack food delivery platform built with Next.js, featuring customer ordering, restaurant management, and delivery partner coordination.
+
+## Features
+
+### For Customers
+- Browse restaurants and menus
+- Add items to cart and place orders
+- Track order status in real-time
+- View order history
+
+### For Restaurants
+- Manage menu items (add, edit, delete)
+- View and process incoming orders
+- Update order preparation status
+- Track sales and orders
+
+### For Delivery Partners
+- Register and manage profile
+- View available delivery orders
+- Accept and complete deliveries
+- Track earnings and statistics
+- Toggle availability status
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB with Mongoose
+- **Authentication**: bcrypt password hashing
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+
+- MongoDB database
 
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Set up environment variables:
+```env
+MONGODB_URI=your_mongodb_connection_string
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. Open [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+├── _components/          # Reusable UI components
+├── api/                  # API routes
+│   ├── customer/        # Customer endpoints
+│   ├── delivery/        # Delivery partner endpoints
+│   ├── order/           # Order management
+│   ├── restaurant/      # Restaurant endpoints
+│   └── user/            # User authentication
+├── cart/                # Shopping cart page
+├── delivery/            # Delivery partner dashboard
+├── delivery-auth/       # Delivery partner auth pages
+├── explore/             # Restaurant menu pages
+├── lib/                 # Database models and config
+├── orders/              # Order history page
+├── restaurant/          # Restaurant dashboard
+└── user-auth/           # Customer auth pages
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Auto-Assignment System
+Orders are automatically assigned to available delivery partners based on current workload, ensuring fair distribution and efficient delivery.
 
-## Deploy on Vercel
+### Order Status Flow
+```
+confirm → preparing → picked_up → delivered
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Database Models
+- **Customer**: Customer accounts and profiles
+- **User**: Restaurant accounts
+- **DeliveryPartner**: Delivery partner profiles
+- **Food**: Menu items
+- **Order**: Order records with relationships
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Routes
+
+### Customer
+- `POST /api/user/signup` - Register customer
+- `POST /api/user/login` - Login customer
+- `GET /api/customer/[id]` - Get customer details
+
+### Restaurant
+- `POST /api/restaurant/signup` - Register restaurant
+- `POST /api/restaurant/login` - Login restaurant
+- `POST /api/restaurant/food` - Add menu item
+- `GET /api/restaurant/food/[id]` - Get menu items
+
+### Delivery Partner
+- `POST /api/delivery/signup` - Register delivery partner
+- `POST /api/delivery/login` - Login delivery partner
+- `GET /api/delivery/assign` - Auto-assign available partner
+- `GET /api/delivery/orders` - Get orders for partner
+- `PUT /api/delivery/orders` - Update order status
+
+### Orders
+- `POST /api/order` - Create order
+- `GET /api/order/getOrder` - Get order details
+
+## Security
+
+- Password hashing with bcrypt (10 rounds)
+- Email uniqueness validation
+- Session management via localStorage
+- Protected routes with authentication checks
+
+## Deployment
+
+### Build for production:
+```bash
+npm run build
+```
+
+### Start production server:
+```bash
+npm start
+```
+
+## License
+
+This project is built with Next.js. Check out the [Next.js documentation](https://nextjs.org/docs) for more information.
